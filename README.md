@@ -1,6 +1,6 @@
 # htmxlike
 
-HTMLX but in under 500 bytes and JSON-friendly.
+HTMLX but in under 1 KB and JSON-friendly.
 
 ## Keywords
 
@@ -51,3 +51,29 @@ Parameter to specify which property of the received object should be applied to 
 ```
 
 Properties are stringified with `String(value)` and applied as the `.innerText` of the target element.
+
+### `o-class-*`
+
+Parameter to specify what classes (if any) should be added to the target element depending on the status of the request.
+
+| Attribute | Description |
+| --- | --- |
+| `o-class-error` | Request did not return a 2XX status code; request or JSON parsing threw an error. |
+| `o-class-loading` | Added before the request starts; removed when the request finishes. |
+| `o-class-success` | Added when the request finishes successfully. |
+
+```html
+<button o-method="GET /quote" o-ref="quotebox">
+    Clickme
+</button>
+
+<quote 
+    id="quotebox"
+    o-class-error="error"
+    o-class-loading="loading"
+    o-class-success="success"
+>
+    <p o-prop="quote"></p>
+    <cite o-prop="author"></cite>
+</quote>
+```
