@@ -1,3 +1,5 @@
+import { getProp, tryAddClass, tryRemoveClass } from "./helpers";
+
 const actions = document.querySelectorAll("[o-action]");
 
 const fetchData = async (
@@ -7,7 +9,9 @@ const fetchData = async (
 	try {
 		const response = await fetch(url, { method });
 
-		if (!response.ok) throw new Error("Network response was not ok");
+		if (!response.ok) {
+			throw new Error("Network response was not ok");
+		}
 
 		const data = await response.json();
 		return data;
@@ -20,10 +24,9 @@ const fetchData = async (
 const classPropNames = ["success", "loading", "error"] as const;
 
 for (const actionElement of actions) {
-	const [method, url] = actionElement.getAttribute("o-action")?.split(" ") ?? [
-		null,
-		null,
-	];
+	const [method = "GET", url] =
+		actionElement.getAttribute("o-action")?.split(" ") ?? [];
+
 	const ref = actionElement.getAttribute("o-ref");
 	const targetElement = ref ? document.getElementById(ref) : actionElement;
 
@@ -40,27 +43,31 @@ for (const actionElement of actions) {
 	actionElement.addEventListener("click", async (event) => {
 		event.preventDefault();
 
-		classProps.loading && targetElement.classList.add(classProps.loading);
+		tryAddClass(targetElement, classProps.loading);
 
-		const res = await fetchData(method ?? "GET", url);
+		const res = await fetchData(method, url);
 
-		classProps.loading && targetElement.classList.remove(classProps.loading);
+		tryRemoveClass(targetElement, classProps.loading);
 
 		if (res === "error") {
-			classProps.error && targetElement.classList.add(classProps.error);
+			tryAddClass(targetElement, classProps.error);
 			return;
 		}
 
-		classProps.success && targetElement.classList.add(classProps.success);
+		tryAddClass(targetElement, classProps.success);
 
-		for (const [key, value] of Object.entries(res)) {
-			const target = targetElement.querySelector(
-				`[o-prop="${key}"]`,
-			) as HTMLElement | null;
+		const elements = targetElement.querySelectorAll(
+			"[o-prop]",
+		) as NodeListOf<HTMLElement>;
 
-			if (!target) continue;
+		for (const element of elements) {
+			const propName = element.getAttribute("o-prop");
+			if (!propName) {
+				continue;
+			}
 
-			target.innerText = String(value);
+			const value = getProp(res, propName);
+			element.innerText = String(value);
 		}
 	});
 }

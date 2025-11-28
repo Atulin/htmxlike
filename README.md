@@ -52,6 +52,30 @@ Parameter to specify which property of the received object should be applied to 
 
 Properties are stringified with `String(value)` and applied as the `.innerText` of the target element.
 
+If the response JSON is nested, you can use `.` to access nested properties:
+
+```json
+{
+    "quote": {
+        "text": "Hope is the spark that ignites our dreams.",
+        "author": "Riko Tanaka"
+    }
+}
+```
+
+```html
+<button o-method="GET /quote" o-ref="quotebox">
+    Clickme
+</button>
+
+<quote id="quotebox">
+    <p o-prop="quote.text"></p>
+    <cite o-prop="quote.author"></cite>
+</quote>
+```
+
+HTMXLike currently does not support arrays.
+
 ### `o-class-*`
 
 Parameter to specify what classes (if any) should be added to the target element depending on the status of the request.
